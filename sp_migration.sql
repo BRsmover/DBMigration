@@ -1,4 +1,5 @@
 DROP PROCEDURE IF EXISTS `sp_migration`;
+
 CREATE PROCEDURE `sp_migration`()
   BEGIN
     DROP DATABASE IF EXISTS `schoolinfo_neu`;
@@ -13,6 +14,8 @@ CREATE PROCEDURE `sp_migration`()
     SET COLLATION_SERVER = utf8_unicode_ci;
     SET COLLATION_DATABASE = utf8_unicode_ci;
     SET COLLATION_CONNECTION = utf8_unicode_ci;
+
+    SET SQL_MODE = 'ALLOW_INVALID_DATES';
 
     CREATE DATABASE `schoolinfo_neu`;
 
@@ -40,6 +43,13 @@ CREATE PROCEDURE `sp_migration`()
       PRIMARY KEY (`id_lehrbetrieb`)
     );
 
+    /* Create table for orientations */
+    CREATE TABLE `schoolinfo_neu`.`fachrichtungen` (
+      `id_fachrichtung` INT(10)     NOT NULL AUTO_INCREMENT,
+      `name`            VARCHAR(50) NOT NULL,
+      PRIMARY KEY (`id_fachrichtung`)
+    );
+
     /* Create table for students */
     CREATE TABLE `schoolinfo_neu`.`lernende` (
       `id_lernender`    INT(10)         NOT NULL AUTO_INCREMENT,
@@ -47,10 +57,10 @@ CREATE PROCEDURE `sp_migration`()
       `name`            VARCHAR(50)     NOT NULL,
       `vorname`         VARCHAR(50)     NOT NULL,
       `geschlecht`      ENUM ('M', 'F') NOT NULL,
-      `fk_klasse`       INT(10)         NOT NULL,
+      `fk_klasse`       INT(10)                  DEFAULT NULL,
       `bm`              BOOL            NOT NULL,
       `fk_fachrichtung` INT(10)         NOT NULL,
-      `fk_lehrbetrieb`  INT(10)         NOT NULL,
+      `fk_lehrbetrieb`  INT(10)                  DEFAULT NULL,
       `strasse`         VARCHAR(50)              DEFAULT NULL,
       `plz`             VARCHAR(50)              DEFAULT NULL,
       `ort`             VARCHAR(50)              DEFAULT NULL,
@@ -86,13 +96,6 @@ CREATE PROCEDURE `sp_migration`()
       INDEX `fk_modul` (`fk_modul`)
     );
 
-    /* Create table for orientations */
-    CREATE TABLE `schoolinfo_neu`.`fachrichtungen` (
-      `id_fachrichtung` INT(10)     NOT NULL AUTO_INCREMENT,
-      `name`            VARCHAR(50) NOT NULL,
-      PRIMARY KEY (`id_fachrichtung`)
-    );
-
     /* ----- Create column for old PKs ----- */
     ALTER TABLE `schoolinfo_neu`.`klassen`
       ADD COLUMN id_old INT(10) NOT NULL;
@@ -116,6 +119,14 @@ CREATE PROCEDURE `sp_migration`()
         `idrichtung` AS `id_old`,
         `richtung`   AS `name`
       FROM `schoolinfo1282017`.`richtung`;
+
+    INSERT INTO `schoolinfo_neu`.`klassen` (id_old, id_lehrer, name, beschreibung)
+      SELECT
+        `idklasse`      AS `id_old`,
+        `klassenlehrer` AS `id_lehrer`,
+        `name`          AS `name`,
+        `realname`      AS `beschreibung`
+      FROM `schoolinfo1282017`.`klasse`;
 
     /* Migrate companies */
     INSERT INTO `schoolinfo_neu`.`lehrbetriebe` (`id_old`, `name`, `strasse`, `nummer`, `plz`, `ort`, `kanton`, `land`)
@@ -152,22 +163,22 @@ CREATE PROCEDURE `sp_migration`()
     /* Migrate students */
     INSERT INTO `schoolinfo_neu`.`lernende` (`id_old`, `anrede`, `name`, `vorname`, `geschlecht`, `fk_klasse`, `bm`, `fk_fachrichtung`, `fk_lehrbetrieb`, `strasse`, `plz`, `ort`)
       SELECT
-        `lernender`.`Lern_id`                                      AS `id_old`,
-        `lernender`.`anrede`                                       AS `anrede`,
-        `lernender`.`name`                                         AS `name`,
-        `lernender`.`vorname`                                      AS `vorname`,
-        IF(`lernender`.`geschlecht` REGEXP '[Mm].*', 'M', 'F')     AS `geschlecht`,
-        `klassen`.`idklasse`                                       AS `fk_klasse`,
-        IF(`lernender`.`bm` = 0, FALSE, TRUE)                      AS `bm`,
-        `fachrichtungen`.`idrichtung`                              AS `fk_fachrichtung`,
-        `lehrbetriebe`.`id_Lehrbetrieb`                            AS `fk_lehrbetrieb`,
-        IF(`lernender`.`strasse` = '', NULL, `lernende`.`strasse`) AS `strasse`,
-        IF(`lernender`.`plz` = '', NULL, `lernende`.`plz`)         AS `plz`,
-        `lernender`.`ort`                                          AS `ort`
+        `lernender`.`Lern_id`                                       AS `id_old`,
+        `lernender`.`anrede`                                        AS `anrede`,
+        `lernender`.`name`                                          AS `name`,
+        `lernender`.`vorname`                                       AS `vorname`,
+        IF(`lernender`.`geschlecht` REGEXP '[Mm].*', 'M', 'F')      AS `geschlecht`,
+        `klassen`.`id_klasse`                                       AS `fk_klasse`,
+        IF(`lernender`.`bm` = 0, FALSE, TRUE)                       AS `bm`,
+        `fachrichtungen`.`id_fachrichtung`                          AS `fk_fachrichtung`,
+        `lehrbetriebe`.`id_Lehrbetrieb`                             AS `fk_lehrbetrieb`,
+        IF(`lernender`.`strasse` = '', NULL, `lernender`.`strasse`) AS `strasse`,
+        IF(`lernender`.`plz` = '', NULL, `lernender`.`plz`)         AS `plz`,
+        `lernender`.`ort`                                           AS `ort`
       FROM `schoolinfo1282017`.`lernende` AS `lernender`
         LEFT JOIN `schoolinfo_neu`.`klassen` ON `klassen`.`id_old` = `lernender`.`klasse`
-        LEFT JOIN `schoolinfo_neu`.`fachrichtungen` ON `fachrichtungen`.`id_old` = `lernende`.`richtung`
-        LEFT JOIN `schoolinfo_neu`.`lehrbetriebe` ON `lehrbetriebe`.`id_old` = `lernende`.`lehrbetrieb`;
+        LEFT JOIN `schoolinfo_neu`.`fachrichtungen` ON `fachrichtungen`.`id_old` = `lernender`.`richtung`
+        LEFT JOIN `schoolinfo_neu`.`lehrbetriebe` ON `lehrbetriebe`.`id_old` = `lernender`.`lehrbetrieb`;
 
     /* Migrate modules */
     INSERT INTO `schoolinfo_neu`.`module` (`id_old`, `name`, `beschreibung`)
@@ -209,4 +220,4 @@ CREATE PROCEDURE `sp_migration`()
       DROP COLUMN `id_old_lernender`,
       DROP COLUMN `id_old_modul`;
 
-  END
+  END;
