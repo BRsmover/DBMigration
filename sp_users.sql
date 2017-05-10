@@ -1,0 +1,6 @@
+DROP PROCEDURE IF EXISTS `sp_users`;
+
+CREATE PROCEDURE `sp_users`()
+  BEGIN
+
+  END;
