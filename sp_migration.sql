@@ -62,7 +62,7 @@ CREATE PROCEDURE `sp_migration`()
       `fk_fachrichtung` INT(10)         NOT NULL,
       `fk_lehrbetrieb`  INT(10)                  DEFAULT NULL,
       `strasse`         VARCHAR(50)              DEFAULT NULL,
-      `plz`             VARCHAR(50)              DEFAULT NULL,
+      `plz`             VARCHAR(10)              DEFAULT NULL,
       `ort`             VARCHAR(50)              DEFAULT NULL,
       PRIMARY KEY (`id_lernender`),
       FOREIGN KEY (`fk_klasse`) REFERENCES `klassen` (`id_klasse`),
