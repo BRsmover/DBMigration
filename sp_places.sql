@@ -37,11 +37,11 @@ CREATE PROCEDURE `sp_places`()
 
     /* Add foreign key columns */
     ALTER TABLE `schoolinfo_neu`.`lernende`
-      ADD COLUMN `fk_ort` INT(10) NOT NULL,
+      ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
       ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
 
     ALTER TABLE `schoolinfo_neu`.`lehrbetriebe`
-      ADD COLUMN `fk_ort` INT(10) NOT NULL,
+      ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
       ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
 
     OPEN lehrbetriebe_cursor;
