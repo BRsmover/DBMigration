@@ -4,7 +4,7 @@ CREATE PROCEDURE `sp_places`()
   BEGIN
 
     /* Declare variables */
-    DECLARE id INT(10);
+    DECLARE id_ort INT(10);
     DECLARE name VARCHAR(50);
     DECLARE plz VARCHAR(10);
     DECLARE lernende_fertig BOOLEAN DEFAULT FALSE;
@@ -26,8 +26,8 @@ CREATE PROCEDURE `sp_places`()
     /* Create table */
     CREATE TABLE `schoolinfo_neu`.`ortschaften` (
       `id_ort` INT(10) AUTO_INCREMENT,
-      `name`   VARCHAR(50) NOT NULL,
-      `plz`    VARCHAR(10) NOT NULL,
+      `name`   VARCHAR(50),
+      `plz`    VARCHAR(10),
       PRIMARY KEY (`id_ort`),
       UNIQUE KEY `name_plz` (
         `name`,
@@ -38,11 +38,11 @@ CREATE PROCEDURE `sp_places`()
     /* Add foreign key columns */
     ALTER TABLE `schoolinfo_neu`.`lernende`
       ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
-      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
+      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften`(`id_ort`);
 
     ALTER TABLE `schoolinfo_neu`.`lehrbetriebe`
       ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
-      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
+      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften`(`id_ort`);
 
     OPEN lehrbetriebe_cursor;
 
@@ -52,14 +52,14 @@ CREATE PROCEDURE `sp_places`()
       THEN
         BEGIN
           FETCH lernende_cursor
-          INTO id,
+          INTO id_ort,
             name,
             plz;
         END;
       ELSE
         BEGIN
           FETCH lehrbetriebe_cursor
-          INTO id,
+          INTO id_ort,
             name,
             plz;
         END;
@@ -119,12 +119,12 @@ CREATE PROCEDURE `sp_places`()
         THEN
           UPDATE `schoolinfo_neu`.`lernende`
           SET `id_ort` = @id_ort
-          WHERE `id_lernender` = id
+          WHERE `id_lernender` = id_ort
           LIMIT 1;
         ELSE
           UPDATE `schoolinfo_neu`.`lehrbetriebe`
           SET `id_ort` = @id_ort
-          WHERE `id_lehrbetrieb` = id
+          WHERE `id_lehrbetrieb` = id_ort
           LIMIT 1;
         END IF;
 
