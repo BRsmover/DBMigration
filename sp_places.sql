@@ -9,12 +9,12 @@ CREATE PROCEDURE `sp_places`()
     DECLARE plz VARCHAR(10);
     DECLARE lernende_fertig BOOLEAN DEFAULT FALSE;
     DECLARE lehrbetriebe_fertig BOOLEAN DEFAULT FALSE;
-    DECLARE lernende_cursor CURSOR FOR SELECT
+    DECLARE cr_lernende CURSOR FOR SELECT
                                          `id_lernender`,
                                          `plz`,
                                          `ort`
                                        FROM `schoolinfo_neu`.`lernende`;
-    DECLARE lehrbetriebe_cursor CURSOR FOR SELECT
+    DECLARE cr_lehrbetriebe CURSOR FOR SELECT
                                              `id_lehrbetrieb`,
                                              `plz`,
                                              `ort`
@@ -44,21 +44,21 @@ CREATE PROCEDURE `sp_places`()
       ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
       ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften`(`id_ort`);
 
-    OPEN lehrbetriebe_cursor;
+    OPEN cr_lehrbetriebe;
 
     /* Loop to fetch data */
     myloop: LOOP
       IF lehrbetriebe_fertig
       THEN
         BEGIN
-          FETCH lernende_cursor
+          FETCH cr_lernende
           INTO id_ort,
             name,
             plz;
         END;
       ELSE
         BEGIN
-          FETCH lehrbetriebe_cursor
+          FETCH cr_lehrbetriebe
           INTO id_ort,
             name,
             plz;
@@ -70,14 +70,14 @@ CREATE PROCEDURE `sp_places`()
         IF lehrbetriebe_fertig
         THEN
           BEGIN
-            CLOSE lernende_cursor;
+            CLOSE cr_lernende;
             LEAVE myloop;
           END;
         ELSE
           BEGIN
             SET lehrbetriebe_fertig = TRUE;
-            CLOSE lehrbetriebe_cursor;
-            OPEN lernende_cursor;
+            CLOSE cr_lehrbetriebe;
+            OPEN cr_lernende;
             SET lernende_fertig = TRUE;
             ITERATE myloop;
           END;
