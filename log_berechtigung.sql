@@ -1,11 +1,13 @@
 USE schoolinfo_neu;
 
+DROP TABLE IF EXISTS log_berechtigung;
+
 CREATE TABLE IF NOT EXISTS log_berechtigung (
   id           INT                                                                                                                                                                                                                                                                                                                                       AUTO_INCREMENT,
   benutzer  VARCHAR(150)               NOT NULL,
   timestamp DATETIME     NOT NULL                                                                                                                                                                                                                                                                                                                     DEFAULT current_timestamp,
   wofuer    VARCHAR(80)  NOT NULL,
-  typ       ENUM ('db', 'tab', 'attr') NOT NULL,
+  typ       ENUM ('DB', 'TBL', 'ATTR') NOT NULL,
   berechtigung VARCHAR(100)            NOT NULL,
   fuer         VARCHAR(80)             NOT NULL,
   PRIMARY KEY (id)
