@@ -34,13 +34,14 @@ CREATE PROCEDURE `sp_users`(
     INSERT INTO `schoolinfo_neu`.`log_berechtigung` (
       benutzer,
       timestamp,
-      zugriffsort,
+      wofuer,
       typ,
       berechtigung,
       fuer
     ) VALUES (
       CURRENT_USER(),
       CURRENT_DATE(),
+      hostname,
       zugriffsort,
       berechtigung,
       benutzer
