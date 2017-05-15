@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS lernende_archiv (
   anrede      VARCHAR(25),
   name        VARCHAR(50)  NOT NULL,
   vorname     VARCHAR(50)  NOT NULL,
-  geschlecht  ENUM('M','F'),
+  geschlecht  ENUM ('M', 'F'),
   bm          TINYINT(1),
   strasse     VARCHAR(50),
   ort         VARCHAR(50),

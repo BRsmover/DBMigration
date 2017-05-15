@@ -10,15 +10,15 @@ CREATE PROCEDURE `sp_places`()
     DECLARE lernende_fertig BOOLEAN DEFAULT FALSE;
     DECLARE lehrbetriebe_fertig BOOLEAN DEFAULT FALSE;
     DECLARE cr_lernende CURSOR FOR SELECT
-                                         `id_lernender`,
+                                     `id_lernender`,
+                                     `plz`,
+                                     `ort`
+                                   FROM `schoolinfo_neu`.`lernende`;
+    DECLARE cr_lehrbetriebe CURSOR FOR SELECT
+                                         `id_lehrbetrieb`,
                                          `plz`,
                                          `ort`
-                                       FROM `schoolinfo_neu`.`lernende`;
-    DECLARE cr_lehrbetriebe CURSOR FOR SELECT
-                                             `id_lehrbetrieb`,
-                                             `plz`,
-                                             `ort`
-                                           FROM `schoolinfo_neu`.`lehrbetriebe`;
+                                       FROM `schoolinfo_neu`.`lehrbetriebe`;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET lernende_fertig = TRUE;
 
     DROP TABLE IF EXISTS `schoolinfo_neu`.`ortschaften`;
@@ -38,11 +38,11 @@ CREATE PROCEDURE `sp_places`()
     /* Add foreign key columns */
     ALTER TABLE `schoolinfo_neu`.`lernende`
       ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
-      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften`(`id_ort`);
+      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
 
     ALTER TABLE `schoolinfo_neu`.`lehrbetriebe`
       ADD COLUMN `fk_ort` INT(10) DEFAULT NULL,
-      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften`(`id_ort`);
+      ADD FOREIGN KEY (`fk_ort`) REFERENCES `schoolinfo_neu`.`ortschaften` (`id_ort`);
 
     OPEN cr_lehrbetriebe;
 

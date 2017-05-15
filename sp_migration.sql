@@ -58,7 +58,7 @@ CREATE PROCEDURE `sp_migration`()
       `vorname`         VARCHAR(50)     NOT NULL,
       `geschlecht`      ENUM ('M', 'F') NOT NULL,
       `fk_klasse`       INT(10)                  DEFAULT NULL,
-      `bm`              BOOL            NOT NULL,
+      `bm`              BOOLEAN         NOT NULL,
       `fk_fachrichtung` INT(10)         NOT NULL,
       `fk_lehrbetrieb`  INT(10)                  DEFAULT NULL,
       `strasse`         VARCHAR(50)              DEFAULT NULL,
